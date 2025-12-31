@@ -1,40 +1,35 @@
 package com.todo.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import java.time.LocalDateTime;
 
-@Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Task {
-    @javax.persistence.Id
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String title;
+    private String description;
+    private Boolean completed = false;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private Integer priority = 0;
+    private LocalDateTime dueDate;
+    private Boolean deleted = false;  // 软删除标记
 
-    private String title;        // 标题（必需）
-    private String description;  // 描述（可选）
+    // 构造器
+    public Task() {}
 
-    @Column(name = "is_completed")
-    private Boolean completed = false;  // 是否完成
-
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    public void setId(Long id) {
-        this.id = id;
+    public Task(String title) {
+        this.title = title;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
+    // 可选：手动设置时间
+    public void setCreateAndUpdateTime() {
+        LocalDateTime now = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = now;
+        }
+        this.updatedAt = now;
     }
-
 }

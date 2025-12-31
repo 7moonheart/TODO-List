@@ -3,20 +3,38 @@ server:
 
 spring:
   datasource:
-    url: jdbc:h2:mem:tododb
-    driver-class-name: org.h2.Driver
-    username: sa
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:D:/Ruoyi/todo/data/todo.db
+    username:
     password:
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    # 连接池配置
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+# MyBatis配置
+mybatis:
+  # mapper.xml文件位置
+  mapper-locations: classpath:mapper/*.xml
+  # 实体类包路径
+  type-aliases-package: com.todo.entity
+  configuration:
+    # 下划线转驼峰
+    map-underscore-to-camel-case: true
+    # 开启缓存
+    cache-enabled: true
+    # 日志实现
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 其他配置
+    lazy-loading-enabled: true
+    aggressive-lazy-loading: false
 
-# 跨域配置（直接允许所有，开发用）
-cors:
-  allowed-origins: "*"
-  allowed-methods: "*"
+# 日志配置
+logging:
+  level:
+    com.todo: DEBUG
+    com.todo.mapper: TRACE  # 查看SQL执行
+  file:
+    name: logs/todo-app.log

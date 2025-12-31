@@ -1,48 +1,150 @@
 package com.todo.service;
 
 import com.todo.entity.Task;
-import com.todo.repository.TaskRepository;
+import com.todo.mapper.TaskMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class TaskService {
 
     @Autowired
-    private TaskRepository taskRepository;
+    private TaskMapper taskMapper;
 
+    // 获取所有任务
     public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+        return taskMapper.findAll();
     }
 
+    // 根据ID获取任务
+    public Optional<Task> getTaskById(Long id) {
+        return taskMapper.findById(id);
+    }
+
+    // 创建任务
+    @Transactional
     public Task createTask(Task task) {
-        task.setId(null);  // 确保新建
-        task.setCreatedAt(LocalDateTime.now());
-        return taskRepository.save(task);
+        LocalDateTime now = LocalDateTime.now();
+        task.setCreatedAt(now);
+        task.setUpdatedAt(now);
+        task.setDeleted(false);
+
+        taskMapper.insert(task);
+        return task;
     }
 
-    public Task updateTask(Long id, Task task) {
-        Task existing = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("任务不存在"));
-
-        // 只更新允许的字段
-        if (task.getTitle() != null) {
-            existing.setTitle(task.getTitle());
-        }
-        if (task.getDescription() != null) {
-            existing.setDescription(task.getDescription());
-        }
-        if (task.getCompleted() != null) {
-            existing.setCompleted(task.getCompleted());
+    // 更新任务
+    @Transactional
+    public Optional<Task> updateTask(Long id, Task taskUpdate) {
+        Optional<Task> existingOpt = taskMapper.findById(id);
+        if (existingOpt.isEmpty()) {
+            return Optional.empty();
         }
 
-        return taskRepository.save(existing);
+        Task existing = existingOpt.get();
+
+        // 更新字段
+        if (taskUpdate.getTitle() != null) {
+            existing.setTitle(taskUpdate.getTitle());
+        }
+        if (taskUpdate.getDescription() != null) {
+            existing.setDescription(taskUpdate.getDescription());
+        }
+        if (taskUpdate.getCompleted() != null) {
+            existing.setCompleted(taskUpdate.getCompleted());
+        }
+        if (taskUpdate.getPriority() != null) {
+            existing.setPriority(taskUpdate.getPriority());
+        }
+        if (taskUpdate.getDueDate() != null) {
+            existing.setDueDate(taskUpdate.getDueDate());
+        }
+
+        existing.setUpdatedAt(LocalDateTime.now());
+        taskMapper.update(existing);
+
+        return Optional.of(existing);
     }
 
-    public void deleteTask(Long id) {
-        taskRepository.deleteById(id);
+    // 删除任务
+    @Transactional
+    public boolean deleteTask(Long id) {
+        int result = taskMapper.softDelete(id);
+        return result > 0;
+    }
+
+    // 搜索任务
+    public List<Task> searchTasks(String keyword) {
+        return taskMapper.search(keyword);
+    }
+
+    // 获取未完成任务
+    public List<Task> getActiveTasks() {
+        return taskMapper.findByCompleted(false);
+    }
+
+    // 获取已完成任务
+    public List<Task> getCompletedTasks() {
+        return taskMapper.findByCompleted(true);
+    }
+
+    // 切换任务状态
+    @Transactional
+    public boolean toggleTaskStatus(Long id) {
+        Optional<Task> taskOpt = taskMapper.findById(id);
+        if (taskOpt.isEmpty()) {
+            return false;
+        }
+
+        Task task = taskOpt.get();
+        task.setCompleted(!task.getCompleted());
+        task.setUpdatedAt(LocalDateTime.now());
+
+        return taskMapper.update(task) > 0;
+    }
+
+    // 批量删除
+    @Transactional
+    public int batchDelete(List<Long> ids) {
+        int count = 0;
+        for (Long id : ids) {
+            if (taskMapper.softDelete(id) > 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    // 批量标记完成
+    @Transactional
+    public int batchMarkAsCompleted(List<Long> ids) {
+        return taskMapper.batchUpdateStatus(ids, true, LocalDateTime.now());
+    }
+
+    // 获取统计信息
+    public Map<String, Object> getStatistics() {
+        // 或者使用多个查询
+        long total = taskMapper.countAll();
+        long completed = taskMapper.countCompleted();
+        long active = total - completed;
+
+        return Map.of(
+                "total", total,
+                "completed", completed,
+                "active", active,
+                "dueSoon", 0  // 需要额外查询
+        );
+    }
+
+    // 条件查询（使用XML映射）
+    public List<Task> findByConditions(Map<String, Object> conditions) {
+        // List<Task> findByConditions(Map<String, Object> conditions);
+        return null; // 临时返回
     }
 }
