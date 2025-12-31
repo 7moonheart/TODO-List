@@ -23,6 +23,8 @@ mybatis:
   configuration:
     # 下划线转驼峰
     map-underscore-to-camel-case: true
+    # 启用完全自动映射
+    auto-mapping-behavior: full
     # 开启缓存
     cache-enabled: true
     # 日志实现

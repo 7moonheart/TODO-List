@@ -8,6 +8,7 @@
         <id property="id" column="id"/>
         <result property="title" column="title"/>
         <result property="description" column="description"/>
+        <result property="tag" column="tag"/>
         <result property="completed" column="completed"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>

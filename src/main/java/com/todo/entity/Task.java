@@ -14,7 +14,8 @@ public class Task {
     private Integer priority = 0;
     private LocalDateTime dueDate;
     private Boolean deleted = false;
-    private String tag = "work"; // 标签，默认 work
+//    private String tag = "work"; // 标签，默认 work
+    private String tag;
 
     public Task() {}
 

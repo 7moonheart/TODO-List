@@ -61,17 +61,11 @@ public class TaskController {
     public ResponseEntity<Map<String, Object>> updateTask(
             @PathVariable Long id,
             @RequestBody Task taskUpdate) {
-
-//        return taskService.updateTask(id, taskUpdate)
-//                .map(updated -> ResponseEntity.ok(createSuccessResponse(updated)))
-//                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                        .body(createErrorResponse(404, "任务不存在")));
         boolean updated = taskService.updateTask(id, taskUpdate);
         if (!updated) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(createErrorResponse(404, "任务不存在"));
         }
-
         // 获取更新后的任务
         Task updatedTask = taskService.getTaskById(id);
         return ResponseEntity.ok(createSuccessResponse(updatedTask));

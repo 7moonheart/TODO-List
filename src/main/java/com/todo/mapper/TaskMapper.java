@@ -14,7 +14,7 @@ public interface TaskMapper {
 
     // 查询所有未删除的任务
     @Select("""
-        SELECT id, title, description, completed, 
+        SELECT id, title, description, tag, completed, 
                created_at as createdAt, updated_at as updatedAt,
                priority, due_date as dueDate, deleted
         FROM todo_tasks 
@@ -25,7 +25,7 @@ public interface TaskMapper {
 
     // 根据ID查询
     @Select("""
-        SELECT id, title, description, completed, 
+        SELECT id, title, description, tag, completed, 
                created_at as createdAt, updated_at as updatedAt,
                priority, due_date as dueDate, deleted
         FROM todo_tasks 

@@ -63,6 +63,9 @@ public class TaskService {
         if (taskUpdate.getDescription() != null) {
             existing.setDescription(taskUpdate.getDescription());
         }
+        if (taskUpdate.getTag() != null) {
+            existing.setTag(taskUpdate.getTag());
+        }
         if (taskUpdate.getCompleted() != null) {
             existing.setCompleted(taskUpdate.getCompleted());
         }
