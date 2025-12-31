@@ -146,7 +146,3 @@ rm data/todo.db
 - [SQLite](https://www.sqlite.org/)
 
 ---
-
-访问应用：http://localhost:8080
-
-开始使用吧！🎯
