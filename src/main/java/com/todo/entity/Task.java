@@ -13,9 +13,9 @@ public class Task {
     private LocalDateTime updatedAt;
     private Integer priority = 0;
     private LocalDateTime dueDate;
-    private Boolean deleted = false;  // 软删除标记
+    private Boolean deleted = false;
+    private String tag = "work"; // 标签，默认 work
 
-    // 构造器
     public Task() {}
 
     public Task(String title) {
@@ -24,7 +24,7 @@ public class Task {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // 可选：手动设置时间
+    // 手动设置时间
     public void setCreateAndUpdateTime() {
         LocalDateTime now = LocalDateTime.now();
         if (this.createdAt == null) {

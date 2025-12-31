@@ -1,14 +1,15 @@
 -- 创建任务表
 CREATE TABLE IF NOT EXISTS todo_tasks (
-                                          id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                          title TEXT NOT NULL,
-                                          description TEXT,
-                                          completed BOOLEAN NOT NULL DEFAULT 0,
-                                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                          priority INTEGER DEFAULT 0,
-                                          due_date TIMESTAMP,
-                                          deleted BOOLEAN DEFAULT 0
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT,
+    tag TEXT DEFAULT 'work',
+    completed BOOLEAN NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    priority INTEGER DEFAULT 0,
+    due_date TIMESTAMP,
+    deleted BOOLEAN DEFAULT 0
 );
 
 -- 创建索引

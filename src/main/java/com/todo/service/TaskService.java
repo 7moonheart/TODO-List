@@ -23,8 +23,13 @@ public class TaskService {
     }
 
     // 根据ID获取任务
-    public Optional<Task> getTaskById(Long id) {
+    public Task getTaskById(Long id) {
         return taskMapper.findById(id);
+    }
+
+    // 根据标签获取任务
+    public List<Task> getTasksByTag(String tag) {
+        return taskMapper.findByTag(tag);
     }
 
     // 创建任务
@@ -33,7 +38,11 @@ public class TaskService {
         LocalDateTime now = LocalDateTime.now();
         task.setCreatedAt(now);
         task.setUpdatedAt(now);
+        task.setCompleted(false);
         task.setDeleted(false);
+        if (task.getTag() == null) {
+            task.setTag("work");
+        }
 
         taskMapper.insert(task);
         return task;
@@ -41,13 +50,11 @@ public class TaskService {
 
     // 更新任务
     @Transactional
-    public Optional<Task> updateTask(Long id, Task taskUpdate) {
-        Optional<Task> existingOpt = taskMapper.findById(id);
-        if (existingOpt.isEmpty()) {
-            return Optional.empty();
+    public boolean updateTask(Long id, Task taskUpdate) {
+        Task existing = taskMapper.findById(id);
+        if (existing == null) {
+            return false;
         }
-
-        Task existing = existingOpt.get();
 
         // 更新字段
         if (taskUpdate.getTitle() != null) {
@@ -67,16 +74,13 @@ public class TaskService {
         }
 
         existing.setUpdatedAt(LocalDateTime.now());
-        taskMapper.update(existing);
-
-        return Optional.of(existing);
+        return taskMapper.update(existing) > 0;
     }
 
     // 删除任务
     @Transactional
     public boolean deleteTask(Long id) {
-        int result = taskMapper.softDelete(id);
-        return result > 0;
+        return taskMapper.softDelete(id) > 0;
     }
 
     // 搜索任务
@@ -97,16 +101,13 @@ public class TaskService {
     // 切换任务状态
     @Transactional
     public boolean toggleTaskStatus(Long id) {
-        Optional<Task> taskOpt = taskMapper.findById(id);
-        if (taskOpt.isEmpty()) {
+        Task task = taskMapper.findById(id);
+        if (task == null) {
             return false;
         }
 
-        Task task = taskOpt.get();
-        task.setCompleted(!task.getCompleted());
-        task.setUpdatedAt(LocalDateTime.now());
-
-        return taskMapper.update(task) > 0;
+        Boolean newStatus = !task.getCompleted();
+        return taskMapper.toggleStatus(id, newStatus) > 0;
     }
 
     // 批量删除

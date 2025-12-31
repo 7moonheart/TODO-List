@@ -30,10 +30,16 @@ public class TaskController {
     // 获取任务详情
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getTask(@PathVariable Long id) {
-        return taskService.getTaskById(id)
-                .map(task -> ResponseEntity.ok(createSuccessResponse(task)))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(createErrorResponse(404, "任务不存在")));
+//        return taskService.getTaskById(id)
+//                .map(task -> ResponseEntity.ok(createSuccessResponse(task)))
+//                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                        .body(createErrorResponse(404, "任务不存在")));
+        Task task = taskService.getTaskById(id);
+        if (task == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(createErrorResponse(404, "任务不存在"));
+        }
+        return ResponseEntity.ok(createSuccessResponse(task));
     }
 
     // 创建任务
@@ -56,10 +62,19 @@ public class TaskController {
             @PathVariable Long id,
             @RequestBody Task taskUpdate) {
 
-        return taskService.updateTask(id, taskUpdate)
-                .map(updated -> ResponseEntity.ok(createSuccessResponse(updated)))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(createErrorResponse(404, "任务不存在")));
+//        return taskService.updateTask(id, taskUpdate)
+//                .map(updated -> ResponseEntity.ok(createSuccessResponse(updated)))
+//                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                        .body(createErrorResponse(404, "任务不存在")));
+        boolean updated = taskService.updateTask(id, taskUpdate);
+        if (!updated) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(createErrorResponse(404, "任务不存在"));
+        }
+
+        // 获取更新后的任务
+        Task updatedTask = taskService.getTaskById(id);
+        return ResponseEntity.ok(createSuccessResponse(updatedTask));
     }
 
     // 删除任务
@@ -75,6 +90,15 @@ public class TaskController {
         response.put("code", 200);
         response.put("message", "删除成功");
         response.put("data", null);
+        return ResponseEntity.ok(response);
+    }
+    // 添加按标签获取任务的方法
+    @GetMapping("/tag/{tag}")
+    public ResponseEntity<Map<String, Object>> getTasksByTag(@PathVariable String tag) {
+        List<Task> tasks = taskService.getTasksByTag(tag);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", tasks);
         return ResponseEntity.ok(response);
     }
 

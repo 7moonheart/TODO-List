@@ -31,16 +31,20 @@ public interface TaskMapper {
         FROM todo_tasks 
         WHERE id = #{id} AND deleted = 0
     """)
-    Optional<Task> findById(Long id);
+    Task findById(Long id);
+
+    // 根据标签查询
+    @Select("SELECT * FROM todo_tasks WHERE tag = #{tag} AND deleted = 0 ORDER BY created_at DESC")
+    List<Task> findByTag(@Param("tag") String tag);
 
     // 插入任务
     @Insert("""
         INSERT INTO todo_tasks (
-            title, description, completed, 
+            title, description, tag, completed, 
             created_at, updated_at, priority, 
             due_date, deleted
         ) VALUES (
-            #{title}, #{description}, #{completed},
+            #{title}, #{description}, #{tag}, #{completed},
             #{createdAt}, #{updatedAt}, #{priority},
             #{dueDate}, #{deleted}
         )
@@ -49,29 +53,26 @@ public interface TaskMapper {
     int insert(Task task);
 
     // 更新任务
-    @Update("""
-        <script>
-        UPDATE todo_tasks
-        <set>
-            updated_at = #{updatedAt},
-            <if test="title != null">title = #{title},</if>
-            <if test="description != null">description = #{description},</if>
-            <if test="completed != null">completed = #{completed},</if>
-            <if test="priority != null">priority = #{priority},</if>
-            <if test="dueDate != null">due_date = #{dueDate},</if>
-        </set>
-        WHERE id = #{id} AND deleted = 0
-        </script>
-    """)
+    @Update("UPDATE todo_tasks SET " +
+            "title = #{title}, " +
+            "description = #{description}, " +
+            "tag = #{tag}, " +
+            "completed = #{completed}, " +
+            "updated_at = CURRENT_TIMESTAMP " +
+            "WHERE id = #{id}")
     int update(Task task);
 
     // 软删除
     @Update("UPDATE todo_tasks SET deleted = 1 WHERE id = #{id}")
     int softDelete(Long id);
 
-    // 硬删除（实际不推荐使用）
+    // 硬删除
     @Delete("DELETE FROM todo_tasks WHERE id = #{id}")
     int hardDelete(Long id);
+
+    // 更新任务状态
+    @Update("UPDATE todo_tasks SET completed = #{completed} WHERE id = #{id}")
+    int toggleStatus(@Param("id") Long id, @Param("completed") Boolean completed);
 
     // 根据状态查询
     @Select("""
